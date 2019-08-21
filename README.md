@@ -8,3 +8,6 @@ https://www.kaggle.com/abecklas/fifa-world-cup
 
 Shinydashboard
 https://shiny.rstudio.com/
+
+Pototype
+https://sunkit.shinyapps.io/CETM25/ 
