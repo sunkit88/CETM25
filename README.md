@@ -6,7 +6,7 @@ Ronald Cheng
 Dataset - FIFA World Cup
 https://www.kaggle.com/abecklas/fifa-world-cup
 
-Shinydashboard
+Shiny
 https://shiny.rstudio.com/
 
 Pototype
