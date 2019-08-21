@@ -9,5 +9,5 @@ https://www.kaggle.com/abecklas/fifa-world-cup
 Shiny
 https://shiny.rstudio.com/
 
-Pototype
+Prototype
 https://sunkit.shinyapps.io/CETM25/ 
