@@ -31,7 +31,7 @@ header <- dashboardHeader(
 
 sidebar <- dashboardSidebar(
   width = 300,
-  sidebarMenu(
+  sidebarMenu(style = "position: fixed; overflow: visible;",
     menuItem(text= span("Overview", style = "font-weight: bold; font-size: 20px"),
              tabName = "overview"),
     menuSubItem(text= span("By Year", style = "font-size: 20px"),
