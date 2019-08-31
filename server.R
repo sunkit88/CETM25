@@ -46,14 +46,22 @@ wcm_df<- wcm_raw
 wcp_df<- wcp_raw
 
 
-wc_data1 <- wc_df %>%
+wc_data <- wc_df %>%
   filter(!is.na(Year)) %>%
   filter(!is.na(Winner)) %>%
   mutate(Winner = recode(Winner, 'Germany FR' = 'Germany')) %>%
   count(Winner) %>%
   mutate(n=n*10) %>%
-  arrange(n) #%>%
-  # top_n(100)
+  arrange(n)
+
+
+
+wc_data1 <- wc_df %>%
+  filter(!is.na(Year)) %>%
+  filter(!is.na(Winner)) %>%
+  mutate(Winner = recode(Winner, 'Germany FR' = 'Germany')) 
+
+
 
 wcm_data <- wcm_df %>% 
   distinct(MatchID, .keep_all= TRUE) %>%
@@ -69,20 +77,10 @@ wcm_data <- wcm_df %>%
   arrange(n) 
 
 
-wc_win_wordcloud <- rbind(wc_data1,wcm_data) %>%
+
+wc_win_wordcloud <- rbind(wc_data,wcm_data) %>%
   distinct(Winner, .keep_all= TRUE) 
   
-  
-
-
-
-
-wc_win_count <- data.frame(table(wc_data1$Winner))
-names(wc_win_count) <- c("Winner", "counts")
-wc_win_count<-wc_win_count %>%
-  arrange(counts) %>%
-  top_n(15)
-
 
 
 wcm_data1 <- wcm_df %>% 
@@ -182,7 +180,7 @@ function(input, output) {
 
   
   output$plot2 <- renderPlot({
-    wc_graph1 <- ggplot(wc_data1, aes(x=factor(Winner,levels = Winner),y=(n/10),fill=Winner))
+    wc_graph1 <- ggplot(wc_data, aes(x=factor(Winner,levels = Winner),y=(n/10),fill=Winner))
     wc_graph1 + geom_bar(stat="identity") +
       # label the title, x axis and y axis
       labs(x = "Winner", 
@@ -190,7 +188,7 @@ function(input, output) {
       theme_classic() + guides(fill=FALSE) + coord_flip() +
       # change the label of y axis to numieric with comma
       scale_y_continuous(labels = scales::comma,expand = c(0,0)) +
-      scale_x_discrete(breaks = wc_data1$Winner) +
+      scale_x_discrete(breaks = wc_data$Winner) +
       scale_color_viridis()
   })
   

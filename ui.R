@@ -20,17 +20,23 @@ body <- dashboardBody()
 
 
 header <- dashboardHeader(
-  title = "FIFA World CUP"
+  title = span(
+    "FIFA World Cup",
+    style = "font-family: Segoe UI; font-weight: bold; font-size: 30px"
+  ),
+  titleWidth = "300px"
+
 )
 
 
 sidebar <- dashboardSidebar(
+  width = 300,
   sidebarMenu(
-    menuItem("Overview",
+    menuItem(text= span("Overview", style = "font-weight: bold; font-size: 20px"),
              tabName = "overview"),
-    menuSubItem("By Year",
+    menuSubItem(text= span("By Year", style = "font-size: 20px"),
                 tabName ="byyear"),
-    menuItem("Data Set",
+    menuItem(text= span("Data Set", style = "font-weight: bold; font-size: 20px"),
              tabName = "dataset")
 
   )
@@ -39,7 +45,7 @@ sidebar <- dashboardSidebar(
 
 body <- dashboardBody(
   tabItems(
-    tabItem(tabName = "overview", "Overview",
+    tabItem(tabName = "overview", h2("Overview"),
             fluidRow(
               
               box(title = "Most successful team(s) - Wordcloud",
@@ -85,7 +91,7 @@ body <- dashboardBody(
     
     
     
-    tabItem(tabName = "byyear", "By Year",
+    tabItem(tabName = "byyear", h2("By Year"),
             
             fluidRow(
               box(
@@ -96,31 +102,10 @@ body <- dashboardBody(
             ),
             
             uiOutput("byyear_box")
-            # fluidRow(
-            #   valueBoxOutput("year"),
-            #   valueBoxOutput("winner"),
-            #   valueBoxOutput("total_att")
-            # ),
-            # 
-            # fluidRow(
-            #   valueBoxOutput("country"),
-            #   valueBoxOutput("total_goal"),
-            #   valueBoxOutput("avg_att")
-            # ),
-            # 
-            # fluidRow(
-            #   # box(title= "Hosts Stadium", 
-            #   #     status = "info", solidHeader = TRUE, width = 12, height = 450,
-            #       leafletOutput("map2")
-            #       
-            #       
-            # )
-            # 
-            
     ),
     
     
-    tabItem(tabName = "dataset", "Data Set",
+    tabItem(tabName = "dataset", h2("Data Set"),
             tabsetPanel(type = "tabs",
                 tabPanel("WorldCups.csv", 
                          DTOutput("data1", 
@@ -149,4 +134,4 @@ body <- dashboardBody(
 
 
 
-ui <- dashboardPage(header, sidebar, body)
+ui <- dashboardPage(title="FIFA World Cup", header, sidebar, body)
