@@ -8,7 +8,10 @@ https://www.kaggle.com/abecklas/fifa-world-cup
 Prototype demonstration
 https://sunkit.shinyapps.io/CETM25/ 
 
-If running the R code, belows packages needed to install first.
+Github
+https://github.com/sunkit88/CETM25
+
+Before running the R code, belows packages needed to install first.
 install.packages(c("shiny", "shinydashboard", "rsconnect", "DT", "tidyverse", "scales", "gmodels", "wesanderson", "viridis",                   "wordcloud", "RColorBrewer", "leaflet", "httr", "rjson"))                   
                    
 Shiny Dashboard was strat by the command runApp() in the file app.R
