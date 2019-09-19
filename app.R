@@ -3,18 +3,15 @@
 #                    "rsconnect",
 #                    "DT",
 #                    "tidyverse",
-#                    "stringr",
-#                    "ggplot2",
 #                    "scales",
 #                    "gmodels",
 #                    "wesanderson",
 #                    "viridis",
 #                    "wordcloud",
 #                    "RColorBrewer",
-#                    "forcats",
 #                    "leaflet",
 #                    "httr",
-#                     "rjson"))
+#                    "rjson"))
 
 
 
@@ -37,9 +34,7 @@ library(rjson)
 
 
 
-# setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
-#deployApp()
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 runApp()
