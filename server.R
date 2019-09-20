@@ -1,3 +1,4 @@
+# load the required library
 library(shiny)
 library(shinydashboard)
 library(rsconnect)
@@ -14,6 +15,7 @@ library(httr)
 library(rjson)
 
 
+# function for resolve the location by address, using Google API
 getLatLng <- function(address){
   urlData <- GET(paste0("https://maps.googleapis.com/maps/api/geocode/json?address=", address,"&key=AIzaSyC6AvdVQP7U15XedlgPgDRiwEgCPOURLvg"))
   jsonResult <- rjson::fromJSON(rawToChar(urlData$content))
@@ -40,12 +42,13 @@ wc_raw <- read.csv(file("./WorldCups.csv"), header = TRUE, na.strings = c("","NA
 wcp_raw <- read.csv(file("./WorldCupPlayers.csv"), header = TRUE, na.strings = c("","NA"), encoding = "ISO-8859-1")
 wcm_raw <- read.csv(file("./WorldCupMatches.csv"), header = TRUE, na.strings = c("","NA"), encoding = "ISO-8859-1")
 
-
+# copy the working dataset
 wc_df<-wc_raw
 wcm_df<- wcm_raw
 wcp_df<- wcp_raw
 
 
+# data preprocessing for most winner 
 wc_data <- wc_df %>%
   filter(!is.na(Year)) %>%
   filter(!is.na(Winner)) %>%
@@ -55,14 +58,14 @@ wc_data <- wc_df %>%
   arrange(n)
 
 
-
+# data preprocessing
 wc_data1 <- wc_df %>%
   filter(!is.na(Year)) %>%
   filter(!is.na(Winner)) %>%
   mutate(Winner = recode(Winner, 'Germany FR' = 'Germany')) 
 
 
-
+# data preprocessing for wordcloud
 wcm_data <- wcm_df %>% 
   distinct(MatchID, .keep_all= TRUE) %>%
   select(Home.Team.Name, Away.Team.Name) %>%
@@ -82,7 +85,7 @@ wc_win_wordcloud <- rbind(wc_data,wcm_data) %>%
   distinct(Winner, .keep_all= TRUE) 
   
 
-
+# data preprocessing for total attendance and avg attendance
 wcm_data1 <- wcm_df %>% 
   distinct(MatchID, .keep_all= TRUE) %>%
   filter(!is.na(Year)) %>%
@@ -95,6 +98,7 @@ wcm_data1 <- wcm_df %>%
   summarise(Total_Att = sum(Attendance), Mean_Att=mean(Attendance), Total_Score=sum(Home.Team.Goals+Away.Team.Goals))
 
 
+# data preprocessing for total goals
 wcm_data2 <- wcm_df %>% 
   distinct(MatchID, .keep_all= TRUE) %>%
   filter(!is.na(Year)) %>%
@@ -106,19 +110,7 @@ wcm_data2 <- wcm_df %>%
   summarise(Match_Score=sum(Home.Team.Goals+Away.Team.Goals))
 
 
-
-wcm_data3 <- wcm_df %>% 
-  distinct(MatchID, .keep_all= TRUE) %>%
-  filter(!is.na(Year)) %>%
-  filter(!is.na(Home.Team.Goals)) %>%
-  filter(!is.na(Away.Team.Goals)) %>%
-  mutate(Year<-as.character(Year),
-         Year<-as.factor(Year)) %>%
-  group_by(Year, MatchID) %>%
-  summarise(Match_Score=sum(Home.Team.Goals+Away.Team.Goals))
-
-
-
+# data preprocessing for most win of team
 wcm_data3_W<- wcm_df %>%
   distinct(MatchID, .keep_all= TRUE) %>%
   select(MatchID, Home.Team.Name, Home.Team.Goals, Away.Team.Name, Away.Team.Goals, Win.conditions) %>%
@@ -134,7 +126,7 @@ wcm_data3_W<- wcm_df %>%
   arrange(n, Team_name)
 
 
-
+# data preprocessing for most loss of team
 wcm_data3_L<- wcm_df %>%
   distinct(MatchID, .keep_all= TRUE) %>%
   select(MatchID, Home.Team.Name, Home.Team.Goals, Away.Team.Name, Away.Team.Goals, Win.conditions) %>%
@@ -150,7 +142,7 @@ wcm_data3_L<- wcm_df %>%
   arrange(n, Team_name)
 
 
-
+# data preprocessing for most draw of team
 wcm_data3_D<- wcm_df %>%
   distinct(MatchID, .keep_all= TRUE) %>%
   select(MatchID, Home.Team.Name, Home.Team.Goals, Away.Team.Name, Away.Team.Goals, Win.conditions) %>%
@@ -166,11 +158,11 @@ wcm_data3_D<- wcm_df %>%
   arrange(n, Team_name)
 
 
-
-
+# Shiny function
 function(input, output) {
   
   
+  # plot the wordcloud
   output$plot1 <- renderPlot({
     wordcloud(wc_win_wordcloud$Winner, wc_win_wordcloud$n, 
               max.words=100, random.order=FALSE, scale=c(5,0.5), 
@@ -178,30 +170,26 @@ function(input, output) {
   })
   
 
-  
+  # plot the bar chart of most champion
   output$plot2 <- renderPlot({
     wc_graph1 <- ggplot(wc_data, aes(x=factor(Winner,levels = Winner),y=(n/10),fill=Winner))
     wc_graph1 + geom_bar(stat="identity") +
-      # label the title, x axis and y axis
       labs(x = "Winner", 
            y = "count") +
       theme_classic() + guides(fill=FALSE) + coord_flip() +
-      # change the label of y axis to numieric with comma
       scale_y_continuous(labels = scales::comma,expand = c(0,0)) +
       scale_x_discrete(breaks = wc_data$Winner) +
       scale_color_viridis()
   })
   
 
+  # plot the bar chart of total attendance
   output$plot3 <- renderPlot({
     wcm_graph1 <- ggplot(wcm_data1, aes(x=factor(Year), y=Total_Att, fill=Year))
-    # not displayed those outlier
     wcm_graph1 + geom_bar(stat="identity")+
-      # label the title, x axis and y axis
       labs(x = "Year",
            y = "Attendance") +
       theme_classic() + guides(fill=FALSE)+
-      # change the label of y axis to numieric with comma
       scale_y_continuous(labels = scales::comma, expand = expand_scale(mult = c(0, 0.1), add = c(0, 0))) +
       scale_x_discrete(breaks=wcm_data1$Year, labels=wcm_data1$Year) +
       geom_text(aes(label=paste(scales::comma(round(Total_Att=Total_Att/1000)),"K")), vjust =-0.5, size=3) +
@@ -209,101 +197,99 @@ function(input, output) {
   })
   
   
+  # plot the line chart of avg attendance
   output$plot4 <- renderPlot({
     wcm_graph2 <- ggplot(wcm_data1, aes(x=factor(Year), y=Mean_Att))
     wcm_graph2 + geom_path(group = 1,size=1) + geom_point() +
-      # label the title, x axis and y axis
       labs(x = "Year", 
            y = "Avg. Attendance") +
       theme_classic() + 
-      # change the label of y axis to numieric with comma
       scale_y_continuous(labels = scales::comma) +
       scale_x_discrete(breaks=wcm_data1$Year, labels=wcm_data1$Year) 
   })
   
   
+  # plot the line chart of total goals
   output$plot5 <- renderPlot({
     wcm_graph3 <- ggplot(wcm_data1, aes(x=factor(Year), y=Total_Score, fill=Year))
     wcm_graph3 + geom_path(group = 1,size=1) + geom_point(shape=21, color="darkred", size=6) +
-      # label the title, x axis and y axis
       labs(x = "Year", 
-           y = "Avg. Attendance") +
+           y = "Goals") +
       theme_classic() + guides(fill=FALSE) +
-      # change the label of y axis to numieric with comma
       scale_y_continuous(labels = scales::comma) +
       scale_x_discrete(breaks=wcm_data1$Year, labels=wcm_data1$Year) +
       scale_fill_viridis()
   })
   
   
+  # plot the boxplot of avg goals per match by year
   output$plot6 <- renderPlot({
     wcm_graph4 <- ggplot(wcm_data2, aes(x=factor(Year), y=Match_Score,fill=Year))
     wcm_graph4 + geom_boxplot() +
-      # label the title, x axis and y axis
       labs(x = "Year", 
            y = "Goals") +
       theme_classic() + guides(fill=FALSE) +
-      # change the label of y axis to numieric with comma
       scale_y_continuous(labels = scales::comma) +
       scale_x_discrete(breaks=wcm_data2$Year, labels=wcm_data2$Year) +
       scale_fill_viridis()
   })
 
-  
+
+  # plot the bar chart of most win team  
   output$plot7 <- renderPlot({
     wcm_graph3_W <- ggplot(wcm_data3_W, aes(x=factor(Team_name, levels = Team_name),y=n, fill=n))
     wcm_graph3_W + geom_bar(stat="identity")+
-      # label the title, x axis and y axis
       labs(x = "Team", 
            y = "count") +
       theme_classic() + coord_flip() +
-      # change the label of y axis to numieric with comma
       scale_y_continuous(labels = scales::comma,expand = c(0,0)) +
       scale_fill_viridis("count")
   })
     
   
+  # plot the bar chart of most loss team  
   output$plot8 <- renderPlot({
     wcm_graph3_L <- ggplot(wcm_data3_L, aes(x=factor(Team_name, levels = Team_name),y=n, fill=n))
     wcm_graph3_L + geom_bar(stat="identity")+
-      # label the title, x axis and y axis
       labs(x = "Team", 
            y = "count") +
       theme_classic() + coord_flip() +
-      # change the label of y axis to numieric with comma
       scale_y_continuous(labels = scales::comma,expand = c(0,0)) +
       scale_fill_viridis("count")
   })
     
   
+  # plot the bar chart of most draw team
   output$plot9 <- renderPlot({
     wcm_graph3_D <- ggplot(wcm_data3_D, aes(x=factor(Team_name, levels = Team_name),y=n, fill=n))
     wcm_graph3_D + geom_bar(stat="identity")+
-      # label the title, x axis and y axis
       labs(x = "Team", 
            y = "count") +
       theme_classic() + coord_flip() +
-      # change the label of y axis to numieric with comma
       scale_y_continuous(labels = scales::comma,expand = c(0,0)) +
       scale_fill_viridis("count")
   })
   
     
+  # display the data set as table
   output$data1 <- renderDT({
     DT::datatable(wc_raw, options = list(scrollX = TRUE))
   })
   
   
+  # display the data set as table
   output$data2 <- renderDT({
     DT::datatable(wcm_raw, options = list(scrollX = TRUE))
   })
   
   
+  # display the data set as table
   output$data3 <- renderDT({
     DT::datatable(wcp_raw, options = list(scrollX = TRUE))
   })
   
   
+  # display the map with marked countries which have hosted 
   output$map1 <- renderLeaflet({
     withProgress(value = 0, {
       wc_data2 <- wc_df %>%
@@ -325,6 +311,8 @@ function(input, output) {
     })
   })
   
+  
+  # display the map with marked stadiums which have hosted 
   output$map2 <- renderLeaflet({
     withProgress(value = 0, {
       wcm_data2_m1 <- wcm_df %>% 
@@ -345,6 +333,7 @@ function(input, output) {
   })
   
   
+  # display the value box in the page by year
   output$year <- renderValueBox({
     valueBox(
       input$selectyear, ifelse(((input$selectyear!="1942") & (input$selectyear!="1946")), "Year", "World Cup not held because of the Second World War"), 
@@ -404,6 +393,7 @@ function(input, output) {
   })
     
 
+  # control the value box display when not hosted WC in that year
   output$byyear_box <- renderUI({
     if (input$selectyear!=1942 & input$selectyear!=1946) 
       {

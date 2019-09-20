@@ -1,3 +1,4 @@
+# load the required library
 library(shiny)
 library(shinydashboard)
 library(rsconnect)
@@ -14,11 +15,13 @@ library(httr)
 library(rjson)
 
 
+# Shiny dashboard structure
 header <- dashboardHeader()
 sidebar <- dashboardSidebar()
 body <- dashboardBody()
 
 
+# header setting
 header <- dashboardHeader(
   title = span(
     "FIFA World Cup",
@@ -29,6 +32,7 @@ header <- dashboardHeader(
 )
 
 
+# sidebar setting
 sidebar <- dashboardSidebar(
   width = 300,
   sidebarMenu(style = "position: fixed; overflow: visible;",
@@ -43,6 +47,7 @@ sidebar <- dashboardSidebar(
 )
 
 
+# dashboard page arrangement
 body <- dashboardBody(
   tabItems(
     tabItem(tabName = "overview", h2("Overview"),
@@ -90,7 +95,7 @@ body <- dashboardBody(
     
     
     
-    
+    # page of by year
     tabItem(tabName = "byyear", h2("By Year"),
             
             fluidRow(
@@ -105,6 +110,7 @@ body <- dashboardBody(
     ),
     
     
+    # page of data set
     tabItem(tabName = "dataset", h2("Data Set"),
             tabsetPanel(type = "tabs",
                 tabPanel("WorldCups.csv", 
